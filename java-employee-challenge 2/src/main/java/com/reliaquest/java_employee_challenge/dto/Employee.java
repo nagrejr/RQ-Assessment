@@ -1,7 +1,5 @@
 package com.reliaquest.java_employee_challenge.dto;
 
-import java.util.UUID;
-
 public class Employee {
     private Integer id;
     private String name;

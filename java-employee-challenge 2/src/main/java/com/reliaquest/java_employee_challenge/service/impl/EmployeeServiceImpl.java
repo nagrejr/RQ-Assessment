@@ -1,6 +1,5 @@
 package com.reliaquest.java_employee_challenge.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reliaquest.java_employee_challenge.dto.Employee;
@@ -8,7 +7,6 @@ import com.reliaquest.java_employee_challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,8 +19,6 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final String BASE_URL = "http://localhost:8112/api/v1/employee";
     private final WebClient webClient;
     private final Logger logger = org.slf4j.LoggerFactory.getLogger(EmployeeServiceImpl.class);
 

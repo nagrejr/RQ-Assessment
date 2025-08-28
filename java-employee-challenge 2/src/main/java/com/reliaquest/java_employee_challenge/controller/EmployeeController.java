@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,10 +19,14 @@ public class EmployeeController implements IEmployeeController {
 
     private final Logger logger = org.slf4j.LoggerFactory.getLogger(EmployeeController.class);
 
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
     @Override
     public ResponseEntity<List<Employee>> getAllEmployees() {
         logger.info("Fetching all employees");
-        List<Employee> employees = new ArrayList<>();
+        List<Employee> employees;
         try {
             employees = employeeService.getAllEmployees();
         } catch (Exception e) {
@@ -36,7 +39,7 @@ public class EmployeeController implements IEmployeeController {
     @Override
     public ResponseEntity<List<Employee>> getEmployeesByNameSearch(String searchString) {
         logger.info("Searching employees with name containing: {}", searchString);
-        List<Employee> employees = new ArrayList<>();
+        List<Employee> employees;
         try {
             employees = employeeService.getEmployeesByNameSearch(searchString);
         } catch (Exception e) {
@@ -49,7 +52,7 @@ public class EmployeeController implements IEmployeeController {
     @Override
     public ResponseEntity<Employee> getEmployeeById(String id) {
         logger.info("Fetching employee with ID: {}", id);
-        Employee employee = new Employee();
+        Employee employee;
         try {
             employee = employeeService.getEmployeeById(id);
         } catch (Exception e) {
@@ -62,7 +65,7 @@ public class EmployeeController implements IEmployeeController {
     @Override
     public ResponseEntity<Integer> getHighestSalaryOfEmployees() {
         logger.info("Fetching highest salary among employees");
-        Integer highestSalary = 0;
+        Integer highestSalary;
         try {
             highestSalary = employeeService.getHighestSalary();
         } catch (Exception e) {
@@ -75,7 +78,7 @@ public class EmployeeController implements IEmployeeController {
     @Override
     public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
         logger.info("Fetching top ten highest earning employee names");
-        List<String> topTenNames = new ArrayList<>();
+        List<String> topTenNames;
         try {
             topTenNames = employeeService.getTopTenHighestEarningEmployeeNames();
         } catch (Exception e) {
@@ -89,7 +92,7 @@ public class EmployeeController implements IEmployeeController {
     @Override
     public ResponseEntity<Object> createEmployee(Object employeeInput) {
         logger.info("Create employee");
-        Object createdEmployee = new Object();
+        Object createdEmployee;
         try {
             createdEmployee = employeeService.createEmployee(employeeInput);
         } catch (Exception e) {
@@ -101,16 +104,19 @@ public class EmployeeController implements IEmployeeController {
 
     @Override
     public ResponseEntity<String> deleteEmployeeById(String id) {
-        logger.info("Delete employee with ID: {}", id);
+        logger.info("Attempting to delete employee with ID: {}", id);
         try {
             boolean isDeleted = employeeService.deleteEmployee(id);
             if (!isDeleted) {
+                logger.warn("Employee with ID: {} not found", id);
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found");
             }
+            logger.info("Successfully deleted employee with ID: {}", id);
         } catch (ResponseStatusException e) {
-            throw e; // Re-throw to preserve the original status and message
+            logger.error("Error during deletion: {}", e.getReason());
+            throw e;
         } catch (Exception e) {
-            logger.error("Error deleting employee: {}", e.getMessage());
+            logger.error("Unexpected error while deleting employee with ID: {}: {}", id, e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to delete employee by id", e);
         }
         return new ResponseEntity<>("Employee deleted successfully", HttpStatus.OK);
